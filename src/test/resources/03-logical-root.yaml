@@ -1,20 +1,23 @@
+data:
 - { id: 1, price: 10, quantity: 1 }
 - { id: 2, price: 20, quantity: 2 }
 - { id: 3, price: 30, quantity: 3 }
 - { id: 4, price: 40, quantity: 4 }
 - { id: 5, price: 50, quantity: 5 }
 ---
-$and:
-- { id: { $gte: 2 } }
-- { quantity: { $lte: 4 } }
----
+query:
+  $and:
+  - { id: { $gte: 2 } }
+  - { quantity: { $lte: 4 } }
+result:
 - { id: 2, price: 20, quantity: 2 }
 - { id: 3, price: 30, quantity: 3 }
 - { id: 4, price: 40, quantity: 4 }
 ---
-$or:
-- { id: { $lt: 2 } }
-- { quantity: { $gt: 4 } }
----
+query:
+  $or:
+  - { id: { $lt: 2 } }
+  - { quantity: { $gt: 4 } }
+result:
 - { id: 1, price: 10, quantity: 1 }
 - { id: 5, price: 50, quantity: 5 }

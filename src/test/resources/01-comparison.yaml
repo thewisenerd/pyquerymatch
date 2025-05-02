@@ -1,55 +1,98 @@
+data:
 - num: 40
 - num: 41
 - num: 42
 - num: 43
 - num: 44
 ---
-num: { $eq: 42 }
----
+query:
+  num: { $eq: 42 }
+result:
 - num: 42
+sql:
+  query: "num == :num0"
+  params:
+  - num0: 42
 ---
-num: { $gt: 42 }
----
+query:
+  num: { $gt: 42 }
+result:
 - num: 43
 - num: 44
+sql:
+  query: "num > :num0"
+  params:
+  - num0: 42
 ---
-num: { $gte: 42 }
----
+query:
+  num: { $gte: 42 }
+result:
 - num: 42
 - num: 43
 - num: 44
+sql:
+  query: "num >= :num0"
+  params:
+  - num0: 42
 ---
-num:
-  $in:
-  - 40
-  - 42
----
+query:
+  num:
+    $in:
+    - 40
+    - 42
+result:
 - num: 40
 - num: 42
+sql:
+  query: "num in (:num0, :num1)"
+  params:
+  - num0: 40
+  - num1: 42
 ---
-num: { $lt: 42 }
----
+query:
+  num: { $lt: 42 }
+result:
 - num: 40
 - num: 41
+sql:
+  query: "num < :num0"
+  params:
+  - num0: 42
 ---
-num: { $lte: 42 }
----
+query:
+  num: { $lte: 42 }
+result:
 - num: 40
 - num: 41
 - num: 42
+sql:
+  query: "num <= :num0"
+  params:
+  - num0: 42
 ---
-num: { $ne: 42 }
----
+query:
+  num: { $ne: 42 }
+result:
 - num: 40
 - num: 41
 - num: 43
 - num: 44
+sql:
+  query: "num != :num0"
+  params:
+  - num0: 42
 ---
-num:
-  $nin:
-  - 40
-  - 42
----
+query:
+  num:
+    $nin:
+    - 40
+    - 42
+result:
 - num: 41
 - num: 43
 - num: 44
+sql:
+  query: "num not in (:num0, :num1)"
+  params:
+  - num0: 40
+  - num1: 42

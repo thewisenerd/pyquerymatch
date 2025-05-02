@@ -1,27 +1,32 @@
+data:
 - num: 10
 - num: 20
 - num: 30
 - num: 40
 - num: 50
 ---
-num: { $and: [ { $gt: 20 }, { $lt: 50 } ] }
----
+query:
+  num: { $and: [ { $gt: 20 }, { $lt: 50 } ] }
+result:
 - num: 30
 - num: 40
 ---
-num: { $not: { $gt: 30 } }
----
+query:
+  num: { $not: { $gt: 30 } }
+result:
 - num: 10
 - num: 20
 - num: 30
 ---
-num: { $nor: [ { $lt: 15 }, { $gt: 45 } ] }
----
+query:
+  num: { $nor: [ { $lt: 15 }, { $gt: 45 } ] }
+result:
 - num: 20
 - num: 30
 - num: 40
 ---
-num: { $or: [ { $lt: 15 }, { $gt: 45 } ] }
----
+query:
+  num: { $or: [ { $lt: 15 }, { $gt: 45 } ] }
+result:
 - num: 10
 - num: 50

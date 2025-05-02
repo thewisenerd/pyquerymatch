@@ -1,8 +1,18 @@
 import os
 import unittest
+from typing import TypedDict
+
 import yaml
 
-from pyquerymatch import deserialize, match, Operator
+from pyquerymatch import deserialize, match
+
+class SqlTestCase(TypedDict):
+    query: str
+    params: dict
+
+class TestCase(TypedDict):
+    query: dict
+    result: list[dict]
 
 class TestMatchers(unittest.TestCase):
     def read_resource(self, name) -> bytes:
@@ -15,26 +25,21 @@ class TestMatchers(unittest.TestCase):
     def impl_test_resource(self, name):
         resource = self.read_resource(name)
 
-        data: list[dict] | None = None
-        flip = True
-        matchers: list[Operator] | None = None
-        for obj in yaml.safe_load_all(resource):
-            if data is None:
-                data = obj
-                print(f"{data=}")
-                continue
+        iterable = yaml.safe_load_all(resource)
 
-            if flip:
-                flip = False
+        base = next(iterable)
+        assert base['data'] is not None, "data not specified at root"
 
-                matchers = list(deserialize(obj))
-                print(f"{matchers=}")
-            else:
-                flip = True
-                expected = obj
-                actual = [x for x in data if match(x, matchers)]
-                print(f"{expected=} {actual=}")
-                self.assertEqual(expected, actual)
+        for case in iterable:
+            case = TestCase(**case)
+            matchers = list(
+                deserialize(case['query'])
+            )
+            print(f"{matchers=}")
+            expected = case['result']
+            actual = [x for x in base['data'] if match(x, matchers)]
+            print(f"{expected=} {actual=}")
+            self.assertEqual(expected, actual)
 
     def test_comparisons(self):
         self.impl_test_resource("01-comparison.yaml")
