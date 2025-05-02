@@ -49,6 +49,8 @@ def _unwrap(value: T | ItemValueWrapper[T] | None) -> T | None:
 
 class Operator(ABC):
     operator: str
+    basic_sql_operator: str | None = None
+    logical_sql_operator: str | None = None
 
     @abstractmethod
     def match(self, value: ...) -> bool:
@@ -58,6 +60,7 @@ class Operator(ABC):
 @dataclass
 class CmpEqual(Generic[CT], Operator):
     operator = "$eq"
+    basic_sql_operator = "="
     value: CT | None
 
     def match(self, value: CT | ItemValueWrapper[CT] | None) -> bool:
@@ -67,6 +70,7 @@ class CmpEqual(Generic[CT], Operator):
 @dataclass
 class CmpGreaterThan(Generic[CT], Operator):
     operator = "$gt"
+    basic_sql_operator = ">"
     value: CT | None
 
     def match(self, value: CT | ItemValueWrapper[CT] | None) -> bool:
@@ -76,6 +80,7 @@ class CmpGreaterThan(Generic[CT], Operator):
 @dataclass
 class CmpGreaterThanOrEqual(Generic[CT], Operator):
     operator = "$gte"
+    basic_sql_operator = ">="
     value: CT | None
 
     def match(self, value: CT | ItemValueWrapper[CT] | None) -> bool:
@@ -85,6 +90,7 @@ class CmpGreaterThanOrEqual(Generic[CT], Operator):
 @dataclass
 class CmpIn(Generic[CT], Operator):
     operator = "$in"
+    basic_sql_operator = "in"
     value: list[CT]
 
     def match(self, value: CT | ItemValueWrapper[CT] | None) -> bool:
@@ -94,6 +100,7 @@ class CmpIn(Generic[CT], Operator):
 @dataclass
 class CmpLessThan(Generic[CT], Operator):
     operator = "$lt"
+    basic_sql_operator = "<"
     value: CT | None
 
     def match(self, value: CT | ItemValueWrapper[CT] | None) -> bool:
@@ -103,6 +110,7 @@ class CmpLessThan(Generic[CT], Operator):
 @dataclass
 class CmpLessThanOrEqual(Generic[CT], Operator):
     operator = "$lte"
+    basic_sql_operator = "<="
     value: CT | None
 
     def match(self, value: CT | ItemValueWrapper[CT] | None) -> bool:
@@ -112,6 +120,7 @@ class CmpLessThanOrEqual(Generic[CT], Operator):
 @dataclass
 class CmpNotEqual(Generic[CT], Operator):
     operator = "$ne"
+    basic_sql_operator = "!="
     value: CT | None
 
     def match(self, value: CT | ItemValueWrapper[CT] | None) -> bool:
@@ -121,6 +130,7 @@ class CmpNotEqual(Generic[CT], Operator):
 @dataclass
 class CmpNotIn(Generic[CT], Operator):
     operator = "$nin"
+    basic_sql_operator = "not in"
     value: list[CT]
 
     def match(self, value: CT | ItemValueWrapper[CT] | None) -> bool:
@@ -130,6 +140,7 @@ class CmpNotIn(Generic[CT], Operator):
 @dataclass
 class LogicalAnd(Generic[CT], Operator):
     operator = "$and"
+    logical_sql_operator = "and"
     value: list[Operator]
 
     def match(self, theirs: CT | ItemValueWrapper[CT] | None) -> bool:
@@ -157,6 +168,7 @@ class LogicalNor(Generic[CT], Operator):
 @dataclass
 class LogicalOr(Generic[CT], Operator):
     operator = "$or"
+    logical_sql_operator = "or"
     value: list[Operator]
 
     def match(self, theirs: CT | ItemValueWrapper[CT] | None) -> bool:

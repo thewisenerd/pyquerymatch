@@ -5,6 +5,7 @@ from typing import TypedDict
 import yaml
 
 from pyquerymatch import deserialize, match
+from pyquerymatch.query import build
 
 class SqlTestCase(TypedDict):
     query: str
@@ -13,6 +14,7 @@ class SqlTestCase(TypedDict):
 class TestCase(TypedDict):
     query: dict
     result: list[dict]
+    sql: SqlTestCase | None
 
 class TestMatchers(unittest.TestCase):
     def read_resource(self, name) -> bytes:
@@ -40,6 +42,14 @@ class TestMatchers(unittest.TestCase):
             actual = [x for x in base['data'] if match(x, matchers)]
             print(f"{expected=} {actual=}")
             self.assertEqual(expected, actual)
+
+            sql = case.get('sql')
+            if sql is not None:
+                sql = SqlTestCase(**sql)
+                (query, params) = build(matchers)
+                print(f"{query=} {params=}")
+                self.assertEqual(sql['query'], query)
+                self.assertEqual(sql['params'], params)
 
     def test_comparisons(self):
         self.impl_test_resource("01-comparison.yaml")

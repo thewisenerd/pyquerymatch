@@ -10,6 +10,11 @@ query:
 result:
 - num: 30
 - num: 40
+sql:
+  query: '((num > :num0) and (num < :num1))'
+  params:
+    num0: 20
+    num1: 50
 ---
 query:
   num: { $not: { $gt: 30 } }
@@ -30,3 +35,8 @@ query:
 result:
 - num: 10
 - num: 50
+sql:
+  query: '((num < :num0) or (num > :num1))'
+  params:
+    num0: 15
+    num1: 45

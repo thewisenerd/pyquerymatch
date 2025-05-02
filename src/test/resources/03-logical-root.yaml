@@ -13,6 +13,11 @@ result:
 - { id: 2, price: 20, quantity: 2 }
 - { id: 3, price: 30, quantity: 3 }
 - { id: 4, price: 40, quantity: 4 }
+sql:
+  query: '((id >= :id0) and (quantity <= :quantity0))'
+  params:
+    id0: 2
+    quantity0: 4
 ---
 query:
   $or:
@@ -21,3 +26,8 @@ query:
 result:
 - { id: 1, price: 10, quantity: 1 }
 - { id: 5, price: 50, quantity: 5 }
+sql:
+  query: '((id < :id0) or (quantity > :quantity0))'
+  params:
+    id0: 2
+    quantity0: 4

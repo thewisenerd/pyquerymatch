@@ -10,9 +10,9 @@ query:
 result:
 - num: 42
 sql:
-  query: "num == :num0"
+  query: "num = :num0"
   params:
-  - num0: 42
+    num0: 42
 ---
 query:
   num: { $gt: 42 }
@@ -22,7 +22,7 @@ result:
 sql:
   query: "num > :num0"
   params:
-  - num0: 42
+    num0: 42
 ---
 query:
   num: { $gte: 42 }
@@ -33,7 +33,7 @@ result:
 sql:
   query: "num >= :num0"
   params:
-  - num0: 42
+    num0: 42
 ---
 query:
   num:
@@ -46,8 +46,8 @@ result:
 sql:
   query: "num in (:num0, :num1)"
   params:
-  - num0: 40
-  - num1: 42
+    num0: 40
+    num1: 42
 ---
 query:
   num: { $lt: 42 }
@@ -57,7 +57,7 @@ result:
 sql:
   query: "num < :num0"
   params:
-  - num0: 42
+    num0: 42
 ---
 query:
   num: { $lte: 42 }
@@ -68,7 +68,7 @@ result:
 sql:
   query: "num <= :num0"
   params:
-  - num0: 42
+    num0: 42
 ---
 query:
   num: { $ne: 42 }
@@ -80,7 +80,7 @@ result:
 sql:
   query: "num != :num0"
   params:
-  - num0: 42
+    num0: 42
 ---
 query:
   num:
@@ -94,5 +94,5 @@ result:
 sql:
   query: "num not in (:num0, :num1)"
   params:
-  - num0: 40
-  - num1: 42
+    num0: 40
+    num1: 42
