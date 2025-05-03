@@ -1,3 +1,4 @@
+import logging
 import re
 from dataclasses import dataclass, field
 from typing import Iterable
@@ -5,15 +6,18 @@ from typing import Iterable
 from pyquerymatch import Operator
 from pyquerymatch.match import (
     MatchKeyValue,
-    LogicalAnd,
     CmpGreaterThan,
-    CmpLessThan,
+    LogicalNot,
+    LogicalNor,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class FieldContext:
     field_name: str
+
 
 @dataclass
 class BuilderContext:
@@ -39,6 +43,7 @@ class BuilderContext:
 
         return self.clean_param_names[field_name]
 
+
 def _fragment_basic(
     ctx: BuilderContext,
     operator: Operator,
@@ -46,7 +51,9 @@ def _fragment_basic(
 ) -> tuple[str, dict]:
     sql_operator = operator.basic_sql_operator
     if sql_operator is None:
-        raise ValueError(f"basic_sql_operator not defined in operator type '{type(operator)}'. this must not have been invoked.")
+        raise ValueError(
+            f"basic_sql_operator not defined in operator type '{type(operator)}'. this must not have been invoked."
+        )
 
     if not hasattr(operator, "value"):
         raise ValueError(f"operator '{type(operator)}' has no value")
@@ -79,6 +86,7 @@ def _fragment_basic(
 
     return f"{field_context.field_name} {sql_operator} {bind_params}", query_params
 
+
 def _fragment_logical(
     ctx: BuilderContext,
     operator: str,
@@ -105,6 +113,29 @@ def _fragment_logical(
         sql_query_str = "(" + sql_query_str + ")"
     return sql_query_str, query_params
 
+
+def _fragment_not(
+    ctx: BuilderContext,
+    operator: LogicalNot,
+    field_context: FieldContext | None,
+    /,
+    max_depth: int,
+    depth: int,
+) -> tuple[str, dict]:
+    query, params = _fragment(
+        ctx,
+        operator.value,
+        field_context,
+        max_depth,
+        depth + 1,
+    )
+
+    if not (query.startswith("(") and query.endswith(")")):
+        query = "(" + query + ")"
+
+    return f"not {query}", params
+
+
 def _fragment(
     ctx: BuilderContext,
     operator: Operator | Iterable[Operator],
@@ -122,7 +153,7 @@ def _fragment(
             operator.value,
             FieldContext(field_name=operator.key),
             max_depth,
-            depth = depth + 1,
+            depth=depth + 1,
         )
 
     if operator.basic_sql_operator is not None:
@@ -138,7 +169,28 @@ def _fragment(
             depth,
         )
 
-    raise ValueError(f"operator '{type(operator)}' has no known sql query building logic")
+    if isinstance(operator, LogicalNot):
+        return _fragment_not(
+            ctx,
+            operator,
+            field_context,
+            max_depth,
+            depth,
+        )
+
+    if isinstance(operator, LogicalNor):
+        return _fragment(
+            ctx,
+            operator.value,
+            field_context,
+            max_depth,
+            depth + 1,
+        )
+
+    raise ValueError(
+        f"operator '{type(operator)}' has no known sql query building logic"
+    )
+
 
 def build(
     matchers: Iterable[Operator],
@@ -167,12 +219,16 @@ def build(
         sql_query_str = sql_query[0]
     return sql_query_str, query_params
 
+
 def main():
     # matchers = [MatchKeyValue(key='num', value=CmpIn(value=[42, 43]))]
-    matchers = [MatchKeyValue(key='num', value=LogicalAnd(value=[CmpGreaterThan(value=20), CmpLessThan(value=50)]))]
+    matchers = [
+        MatchKeyValue(key="num", value=LogicalNot(value=CmpGreaterThan(value=30)))
+    ]
     query, params = build(matchers)
 
     print(f"{query=} {params=}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

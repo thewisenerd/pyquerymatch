@@ -159,10 +159,15 @@ class LogicalNot(Generic[CT], Operator):
 @dataclass
 class LogicalNor(Generic[CT], Operator):
     operator = "$nor"
-    value: list[Operator]
+    def __init__(self, value: list[Operator]):
+        self.value = LogicalNot(
+            LogicalOr(
+                value
+            )
+        )
 
     def match(self, theirs: CT | ItemValueWrapper[CT] | None) -> bool:
-        return not any(op.match(theirs) for op in self.value)
+        return self.value.match(theirs)
 
 
 @dataclass

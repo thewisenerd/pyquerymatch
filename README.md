@@ -46,7 +46,11 @@ notation, that somehow does sub-queries.
 > the query builder operators are currently lagging behind the deserializer
 
 - comparison: $eq, $gt, $gte, $in, $lt, $lte, $ne, $nin
-- logical: $and, $or
+- logical: $and, $not, $nor, $or
+
+### notes
+
+- `$nor(...)` is implemented as a `$not($or(...))`
 
 ## todo
 
