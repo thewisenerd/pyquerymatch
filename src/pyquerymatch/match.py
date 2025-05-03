@@ -159,12 +159,9 @@ class LogicalNot(Generic[CT], Operator):
 @dataclass
 class LogicalNor(Generic[CT], Operator):
     operator = "$nor"
+
     def __init__(self, value: list[Operator]):
-        self.value = LogicalNot(
-            LogicalOr(
-                value
-            )
-        )
+        self.value = LogicalNot(LogicalOr(value))
 
     def match(self, theirs: CT | ItemValueWrapper[CT] | None) -> bool:
         return self.value.match(theirs)
@@ -198,12 +195,41 @@ class MatchKeyValue(Generic[CT], Operator):
     key: str
     value: Operator
 
+    @staticmethod
+    def extract(
+        item: dict | None, path: str, /, original_item: dict, original_path: str
+    ) -> ItemValueWrapper:
+        # TODO: support array indexing
+
+        if len(path) == 0:
+            raise ValueError(f"improper Dot Notation ({original_path})")
+
+        if "." not in path:
+            return ItemValueWrapper(original_item, path in item, item.get(path, None))
+
+        # exception: we are None
+        if item is None:
+            return ItemValueWrapper(original_item, False, None)
+
+        # exception: item not a dict.
+        if not isinstance(item, dict):
+            raise ValueError(
+                f"attempting to use dot notation on non-dict (path: {original_path})"
+            )
+
+        (first, rest) = path.split(".", maxsplit=2)
+        return MatchKeyValue.extract(
+            item.get(first, None), rest, original_item, original_path
+        )
+
     def match(self, item: dict) -> bool:
         if not isinstance(item, dict):
             raise ValueError("KeyValueOperator can only be used with a dict")
 
         return self.value.match(
-            ItemValueWrapper(item, self.key in item, item.get(self.key, None))
+            MatchKeyValue.extract(
+                item, self.key, original_item=item, original_path=self.key
+            )
         )
 
 
@@ -344,6 +370,8 @@ def deserialize(
         else:
             kind = _check_and_set_kind(kind, _KIND_OPERATOR)
 
+            # TODO: support simple notation
+            # { status: "A" } == { status: { $eq: "A" } }
             operators = list(_at_least(1, deserialize(value, max_depth, depth + 1)))
             if len(operators) == 1:
                 yield MatchKeyValue(key, operators[0])

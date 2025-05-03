@@ -18,6 +18,16 @@ logger = logging.getLogger(__name__)
 class FieldContext:
     field_name: str
 
+    @property
+    def field_ref(self) -> str:
+        if "." not in self.field_name:
+            return self.field_name
+
+        (field, nested) = self.field_name.split(".", maxsplit=2)
+        if len(nested) == 0:
+            raise ValueError(f"Dot Notation not proper '{self.field_name}'")
+
+        return f"{field}->>'$.{nested}'"
 
 @dataclass
 class BuilderContext:
@@ -84,7 +94,7 @@ def _fragment_basic(
     if len(bind_params_list) > 1:
         bind_params = "(" + bind_params + ")"
 
-    return f"{field_context.field_name} {sql_operator} {bind_params}", query_params
+    return f"{field_context.field_ref} {sql_operator} {bind_params}", query_params
 
 
 def _fragment_logical(
