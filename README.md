@@ -6,6 +6,10 @@ _you probably do not want this. go see [mongoquery][3]._
 a query matcher, which supports deserializing [mongo][1]-like queries, and
 subsequently using it for further purposes.
 
+this only supports a subset of the query notation supported in MongoDB, see
+the [supported operators](#supported-operators) section. this is a conscious
+choice!
+
 # Basic Usage
 
 the simplest usage is for in-memory matching, example:
@@ -18,12 +22,6 @@ matchers = list(deserialize({"num": {"$gt": 42}}))
 filtered = list(filter(lambda x: match(x, matchers), data))
 print(filtered)  # [{'num': 43}, {'num': 44}]
 ```
-
-## supported operators
-
-- comparison: $eq, $gt, $gte, $in, $lt, $lte, $ne, $nin
-- logical: $and, $not, $nor, $or
-- element: $exists
 
 # SQL query builder
 
@@ -40,22 +38,23 @@ all parameters are strictly parameterized to avoid oopsies.
 for very large lists, we intend to have something similar to the [Cloudflare][2]
 notation, that somehow does sub-queries.
 
-## supported operators
+# supported operators
 
 > [!IMPORTANT]
 > the query builder operators are currently lagging behind the deserializer
 
+- simple: `{ field: $val }`
 - comparison: $eq, $gt, $gte, $in, $lt, $lte, $ne, $nin
 - logical: $and, $not, $nor, $or
+- element: $exists
 
-### notes
+# notes
 
 - `$nor(...)` is implemented as a `$not($or(...))`
 
-## todo
+# todo
 
-- extracted fields (e.g., `properties.prop1` translates to
-  `properties ->> '$.prop1'`)
+- validate null semantics for in-memory matchers
 
 [1]: https://www.mongodb.com/docs/manual/reference/operator/query/
 

@@ -8,6 +8,9 @@ query:
     $exists: true
 result:
 - { f1: 1, f2: 2 }
+sql:
+  query: 'f1 is not null'
+  params: {}
 ---
 query:
   f2:
@@ -15,9 +18,15 @@ query:
 result:
 - { f1: 1, f2: 2 }
 - { f2: 2, f3: 3 }
+sql:
+  query: 'f2 is not null'
+  params: {}
 ---
 query:
   f3:
     $exists: false
 result:
 - { f1: 1, f2: 2 }
+sql:
+  query: 'f3 is null'
+  params: {}

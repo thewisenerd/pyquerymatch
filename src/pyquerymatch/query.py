@@ -10,6 +10,7 @@ from pyquerymatch.match import (
     LogicalNot,
     LogicalNor,
     LogicalAnd,
+    Exists,
 )
 
 logger = logging.getLogger(__name__)
@@ -24,11 +25,11 @@ class FieldContext:
         if "." not in self.field_name:
             return self.field_name
 
-        (field, nested) = self.field_name.split(".", maxsplit=2)
+        (col, nested) = self.field_name.split(".", maxsplit=2)
         if len(nested) == 0:
             raise ValueError(f"Dot Notation not proper '{self.field_name}'")
 
-        return f"{field}->>'$.{nested}'"
+        return f"{col}->>'$.{nested}'"
 
 
 @dataclass
@@ -97,6 +98,19 @@ def _fragment_basic(
         bind_params = "(" + bind_params + ")"
 
     return f"{field_context.field_ref} {sql_operator} {bind_params}", query_params
+
+
+def _fragment_exists(
+    ctx: BuilderContext,
+    operator: Exists,
+    field_context: FieldContext | None,
+) -> tuple[str, dict]:
+    if field_context is None:
+        raise ValueError("field_context must be set")
+
+    cmp = "is not null" if operator.value else "is null"
+
+    return f"{field_context.field_ref} {cmp}", {}
 
 
 def _fragment_logical(
@@ -198,6 +212,9 @@ def _fragment(
             max_depth,
             depth + 1,
         )
+
+    if isinstance(operator, Exists):
+        return _fragment_exists(ctx, operator, field_context)
 
     raise ValueError(
         f"operator '{type(operator)}' has no known sql query building logic"
