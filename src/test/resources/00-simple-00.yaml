@@ -1,0 +1,13 @@
+data:
+- status: A
+- status: B
+- status: C
+---
+query:
+  status: B
+result:
+- status: B
+sql:
+  query: 'status = :status0'
+  params:
+    status0: B

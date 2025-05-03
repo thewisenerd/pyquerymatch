@@ -370,13 +370,20 @@ def deserialize(
         else:
             kind = _check_and_set_kind(kind, _KIND_OPERATOR)
 
-            # TODO: support simple notation
-            # { status: "A" } == { status: { $eq: "A" } }
-            operators = list(_at_least(1, deserialize(value, max_depth, depth + 1)))
-            if len(operators) == 1:
-                yield MatchKeyValue(key, operators[0])
+            if isinstance(value, dict):
+                operators = list(_at_least(1, deserialize(value, max_depth, depth + 1)))
+                if len(operators) == 1:
+                    yield MatchKeyValue(key, operators[0])
+                else:
+                    yield MatchKeyValue(key, LogicalAnd(operators))
+
+            elif isinstance(value, (int, float, str, bool, None)):
+                yield MatchKeyValue(key, CmpEqual(value))
+
             else:
-                yield MatchKeyValue(key, LogicalAnd(operators))
+                raise ValueError(
+                    f"unknown value type '{type(value)}' for operator '{key}'"
+                )
 
 
 def match(

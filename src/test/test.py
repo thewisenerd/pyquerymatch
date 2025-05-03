@@ -52,6 +52,11 @@ class TestMatchers(unittest.TestCase):
                 self.assertEqual(sql["query"], query)
                 self.assertEqual(sql["params"], params)
 
+    def test_simple_eq(self):
+        self.impl_test_resource("00-simple-00.yaml")
+        self.impl_test_resource("00-simple-01.yaml")
+        self.impl_test_resource("00-simple-02.yaml")
+
     def test_comparisons(self):
         self.impl_test_resource("01-comparison.yaml")
 

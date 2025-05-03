@@ -1,0 +1,13 @@
+data:
+- status: 1
+- status: 2
+- status: 3
+---
+query:
+  status: 2
+result:
+- status: 2
+sql:
+  query: 'status = :status0'
+  params:
+    status0: 2

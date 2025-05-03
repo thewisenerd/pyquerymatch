@@ -9,6 +9,7 @@ from pyquerymatch.match import (
     CmpGreaterThan,
     LogicalNot,
     LogicalNor,
+    LogicalAnd,
 )
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,7 @@ class FieldContext:
             raise ValueError(f"Dot Notation not proper '{self.field_name}'")
 
         return f"{field}->>'$.{nested}'"
+
 
 @dataclass
 class BuilderContext:
@@ -224,7 +226,9 @@ def build(
         query_params.update(sub_params)
 
     if len(sql_query) > 1:
-        sql_query_str = " AND ".join([f"({x})" for x in sql_query])
+        sql_query_str = f" {LogicalAnd.logical_sql_operator} ".join(
+            [f"({x})" for x in sql_query]
+        )
     else:
         sql_query_str = sql_query[0]
     return sql_query_str, query_params
