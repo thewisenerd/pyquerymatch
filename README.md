@@ -40,9 +40,6 @@ notation, that somehow does sub-queries.
 
 # supported operators
 
-> [!IMPORTANT]
-> the query builder operators are currently lagging behind the deserializer
-
 - simple: `{ field: $val }`
 - comparison: $eq, $gt, $gte, $in, $lt, $lte, $ne, $nin
 - logical: $and, $not, $nor, $or
